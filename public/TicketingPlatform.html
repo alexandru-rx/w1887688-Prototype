@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Wizard</title>
+
+  
+  <link rel="stylesheet" href="style.css" />
+
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+
+<body>
+  <div id="app" class="container">
+
+<header class="header">
+  <h1 class="title">Ticket Wizard</h1>
+
+  <div class="header-right">
+    <div id="auth-status" class="status">Not logged in</div>
+
+    
+    <div class="profile-wrap">
+      <button id="header-profile-btn" class="profile-btn" aria-label="Profile" type="button">
+        <i data-lucide="user"></i>
+      </button>
+
+      <div id="profile-menu" class="profile-menu hidden" role="menu"></div>
+    </div>
+  </div>
+</header>
+
+    
+    <nav class="nav-container">
+      <button id="nav-events" data-view="events" class="nav-btn active">Events</button>
+      <button id="nav-dashboard" data-view="dashboard" class="nav-btn">Promoter Dashboard</button>
+    </nav>
+
+    
+    <div class="search-container">
+
+      
+      <div class="main-search-bar">
+        <i data-lucide="search" class="icon"></i>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search by Artist, Event, or Venue"
+          aria-label="Search Input"
+        />
+        <button class="search-button" onclick="handleSearch()">Search</button>
+      </div>
+
+      
+      <div class="filter-row">
+
+        
+        <div
+          id="location-filter-segment"
+          class="filter-segment"
+          onclick="toggleLocationDropdown()"
+          aria-expanded="false"
+          aria-controls="location-dropdown-menu"
+        >
+          <i data-lucide="map-pin" class="icon"></i>
+          <div class="flex flex-col">
+            <span class="label">Location</span>
+            <span id="location-value" class="value">All Of England</span>
+          </div>
+          <i data-lucide="chevron-down" class="dropdown-arrow"></i>
+        </div>
+
+        
+        <div
+          id="dates-filter-segment"
+          class="filter-segment"
+          onclick="openDatePickerModal()"
+          aria-expanded="false"
+          aria-controls="date-picker-modal"
+        >
+          <i data-lucide="calendar" class="icon"></i>
+          <div class="flex flex-col">
+            <span class="label">Dates</span>
+            <span id="dates-value" class="value">All Dates</span>
+          </div>
+          <i data-lucide="chevron-down" class="dropdown-arrow"></i>
+        </div>
+
+        
+        <div
+          id="genre-filter-segment"
+          class="filter-segment"
+          onclick="openGenreModal()"
+          aria-expanded="false"
+          aria-controls="genre-modal"
+        >
+          <i data-lucide="music" class="icon"></i>
+          <div class="flex flex-col">
+            <span class="label">Genre</span>
+            <span id="genre-value" class="value">All Genres</span>
+          </div>
+          <i data-lucide="chevron-down" class="dropdown-arrow"></i>
+        </div>
+      </div>
+
+      
+      <div id="location-dropdown-menu" class="location-dropdown hidden" role="menu"></div>
+
+      
+      <div id="date-picker-modal" class="date-picker-modal hidden">
+        <div class="picker-header">
+          <span class="picker-title">Select a Date</span>
+          <button class="picker-close" onclick="closeDatePickerModal()">
+            <i data-lucide="x" class="icon"></i>
+          </button>
+        </div>
+
+        
+        <div class="picker-nav">
+          <button class="nav-btn-arrow" onclick="changeMonth(-1)">
+            <i data-lucide="chevron-left" class="icon"></i>
+          </button>
+
+          <div class="month-year-select">
+            <select id="month-select" onchange="renderCalendar()"></select>
+            <select id="year-select" onchange="renderCalendar()"></select>
+          </div>
+
+          <button class="nav-btn-arrow" onclick="changeMonth(1)">
+            <i data-lucide="chevron-right" class="icon"></i>
+          </button>
+        </div>
+
+        <div class="calendar-grid">
+          <div class="weekdays">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+
+          <div id="dates-grid" class="dates-grid"></div>
+        </div>
+
+        <div class="picker-footer">
+          <button class="done-button" onclick="confirmSelectedDate()">Done</button>
+        </div>
+      </div>
+
+      
+      <div id="genre-modal" class="genre-modal hidden">
+        <div class="picker-header">
+          <span id="genre-modal-title" class="picker-title">Select Genre</span>
+          <button class="picker-close" onclick="closeGenreModal()">
+            <i data-lucide="x" class="icon"></i>
+          </button>
+        </div>
+
+        <div class="modal-body-content">
+          <div id="main-genre-list" class="genre-list"></div>
+
+          <div id="sub-genre-list" class="sub-genre-list">
+            <div class="genre-item" style="cursor: default; background: white;">
+              Select a Genre to see sub-genres
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div id="content-viewport" class="content-section">
+
+      
+      <div id="events-view" class="view-content">
+        <h2 class="h2-title">Discover UK Events (Customer View)</h2>
+        <p>Events matching your criteria will be shown below.</p>
+        <div id="events-list"></div>
+      </div>
+
+      
+<div id="dashboard-view" class="view-content hidden">
+
+  <div class="dash-header">
+    <div>
+      <h2 class="h2-title">Promoter Dashboard</h2>
+      <p class="dash-subtitle">Manage your events and view sales performance.</p>
+    </div>
+
+    <button id="add-event-btn" class="primary-btn" onclick="openEventModal('new')" type="button">
+      <i data-lucide="plus" class="icon-sm"></i> Add New Event
+    </button>
+  </div>
+
+  
+  <div id="dashboard-stats" class="dash-stats-grid">
+    <div class="dash-stat-card">
+      <div class="dash-stat-top">
+        <i data-lucide="pound-sterling" class="dash-stat-icon"></i>
+        <span class="dash-stat-label">Total Sales</span>
+      </div>
+      <div class="dash-stat-value" id="metric-total-sales">£0.00</div>
+    </div>
+
+    <div class="dash-stat-card">
+      <div class="dash-stat-top">
+        <i data-lucide="calendar-check" class="dash-stat-icon"></i>
+        <span class="dash-stat-label">Upcoming Events</span>
+      </div>
+      <div class="dash-stat-value" id="metric-upcoming-events">0</div>
+    </div>
+
+    <div class="dash-stat-card">
+      <div class="dash-stat-top">
+        <i data-lucide="users" class="dash-stat-icon"></i>
+        <span class="dash-stat-label">Tickets Sold</span>
+      </div>
+      <div class="dash-stat-value" id="metric-total-attendees">0</div>
+    </div>
+  </div>
+
+  
+  <div class="dash-section-head">
+    <h3 class="h3-title">Your Event Listings</h3>
+
+    <div class="dash-filters">
+      <button class="dash-filter active" data-filter="all" type="button">All</button>
+      <button class="dash-filter" data-filter="upcoming" type="button">Upcoming</button>
+      <button class="dash-filter" data-filter="past" type="button">Past</button>
+    </div>
+  </div>
+
+  <div id="promoter-events-list" class="dash-events-grid">
+    <p class="text-muted-center">
+      No events found. Click 'Add New Event' to list your first event.
+    </p>
+  </div>
+
+</div>
+
+<div id="event-management-modal" class="modal hidden">
+  <div class="modal-content large-modal">
+    <div class="modal-header">
+      <h3 id="event-modal-title" class="modal-title">Create New Event</h3>
+      <button class="picker-close" type="button" onclick="closeEventModal()">
+        <i data-lucide="x" class="icon"></i>
+      </button>
+    </div>
+
+    <form id="event-form" class="event-form" onsubmit="handleEventSave(event)">
+      
+      <fieldset class="form-section">
+        <legend class="section-title">General Event Details</legend>
+
+        <input type="hidden" id="event-id" />
+
+        <label for="event-artist">Artist/Headline Act</label>
+        <input type="text" id="event-artist" required />
+
+        <label for="event-title">Event Title</label>
+        <input type="text" id="event-title" required />
+
+        <label for="event-venue">Venue Name</label>
+        <input type="text" id="event-venue" placeholder="E.g., O2 Academy" required />
+
+        <label for="event-location">City/Location</label>
+        <select id="event-location" required></select>
+
+        <label for="event-genre-main">Main Genre</label>
+        <select id="event-genre-main" onchange="populateSubGenresForModal(this.value)" required></select>
+
+        <label for="event-genre-sub">Sub Genre</label>
+        <select id="event-genre-sub" required></select>
+      </fieldset>
+
+      
+      <fieldset class="form-section grid-2">
+        <legend class="section-title col-span-2">Date, Time & Pricing</legend>
+
+        <div>
+          <label for="event-date">Event Date</label>
+          <input type="date" id="event-date" required />
+        </div>
+
+        <div>
+          <label for="event-time">Start Time</label>
+          <input type="time" id="event-time" required />
+        </div>
+
+        <div class="col-span-2">
+          <label for="event-price">Ticket Price (£)</label>
+          <input type="number" id="event-price" step="0.01" min="0" required />
+        </div>
+
+        <div class="col-span-2">
+          <label for="event-capacity">Total Ticket Capacity</label>
+          <input type="number" id="event-capacity" step="1" min="1" required />
+        </div>
+      </fieldset>
+
+      
+      <fieldset class="form-section">
+        <legend class="section-title">Event Description</legend>
+
+        <label for="event-description">Description (Max 500 chars)</label>
+        <textarea
+          id="event-description"
+          rows="4"
+          maxlength="500"
+          placeholder="Describe your event, line-up, and vibe..."
+        ></textarea>
+      </fieldset>
+
+      
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" onclick="closeEventModal()">Cancel</button>
+        <button type="submit" class="primary-btn">Save Event</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="ticket-type-overlay" class="overlay hidden"></div>
+
+<div id="ticket-type-modal" class="ticket-type-modal hidden" role="dialog" aria-modal="true">
+  <div class="picker-header">
+    <span class="picker-title">Select Ticket Type</span>
+    <button class="picker-close" type="button" onclick="closeTicketTypeModal()">
+      <i data-lucide="x" class="icon"></i>
+    </button>
+  </div>
+
+  <div class="ticket-type-body">
+    <div id="ticket-type-event-info" class="ticket-type-event-info"></div>
+
+    <div id="ticket-type-options" class="ticket-type-options"></div>
+
+    <div class="ticket-qty-row">
+      <span class="qty-label">Quantity</span>
+      <div class="qty-controls">
+        <button type="button" class="qty-btn" id="qty-minus">−</button>
+        <span id="ticket-qty" class="qty-value">1</span>
+        <button type="button" class="qty-btn" id="qty-plus">+</button>
+      </div>
+    </div>
+
+    <div class="ticket-type-footer">
+      <button type="button" class="secondary-btn" onclick="closeTicketTypeModal()">Cancel</button>
+      <button type="button" class="primary-btn" id="confirm-ticket-btn">Continue</button>
+    </div>
+  </div>
+</div>
+
+  
+  <script src="script.js"></script>
+</body>
+</html>

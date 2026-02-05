@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - Ticket Wizard</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+
+<body class="login-page">
+  <div class="checkout-container">
+    <header class="checkout-header">
+      <h1 class="title">Ticket Wizard</h1>
+
+      <button class="back-btn" id="back-to-events-btn">
+        <i data-lucide="chevron-left"></i> Back to Events
+      </button>
+    </header>
+
+<main class="login-flow-content">
+  <h2>Your Profile</h2>
+  <p class="subtitle">View your account info and recent orders.</p>
+
+  
+  <div class="profile-tabs">
+    <button class="tab-btn active" data-target="profile-account">Account details</button>
+    <button class="tab-btn" data-target="profile-orders">Order history</button>
+  </div>
+
+  
+  <section id="profile-account" class="profile-section">
+    <div class="summary-card" id="profile-card"></div>
+  </section>
+
+  
+  <section id="profile-orders" class="profile-section hidden">
+    <div id="orders-list" class="orders-list">
+  <p class="text-muted-center">No orders yet.</p>
+    </div>
+
+  </section>
+
+  <button class="submit-btn primary-btn" id="logout-btn" style="margin-top: 1.5rem;">
+    Logout
+  </button>
+</main>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
