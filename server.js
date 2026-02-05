@@ -33,11 +33,6 @@ if (process.env.NODE_ENV !== "production") {
   );
 }
 
-},
-    credentials: true,
-  })
-);
-
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") return res.sendStatus(204);
   next();
@@ -96,8 +91,6 @@ app.get("/api/test-read", async (req, res) => {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
-
-const PORT = process.env.PORT || 5000;
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
